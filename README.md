@@ -1,4 +1,3 @@
-# Downloader for CumulusClips
+# OEmbed for CumulusClips
 
-This plugin allows users to re-download their originally posted video files. CumulusClips application.  
-
+Add support for oEmbed, i.e. for embedding videos into applications such as WordPress.  
