@@ -4,11 +4,14 @@ $this->view->options->disableView = true;
 
 $urlParts = parse_url($_GET['url']);
 
+$query = parse_str($urlParts['query'], $params);
+
+$height = (isset($query['maxheight'])) ? $query['maxheight'] : '480';
+$width = (isset($query['maxwidth'])) ? $query['maxwidth'] : '640';
 // Check for 'live' in the url and set up livestream embed
 if (strpos($urlParts['path'], 'live') !== false) {
 
   // Get the stream id from the params
-  $query = parse_str($urlParts['query'], $params);
   $id = (isset($query['id'])) ? $query['id'] : false;
 
   if ($id) {
@@ -20,9 +23,9 @@ if (strpos($urlParts['path'], 'live') !== false) {
       $video->version = "1.0";
       $video->author_name = $urlParts['host'];
       $video->author_url = "https://" . $urlParts['host'];
-      $video->html = "<iframe src='" . BASE_URL . "/live/embed.php?id=$id' width='640' height='480' frameborder='0' allowfullscreen></iframe>";
-      $video->width = '480';
-      $video->height = '360';
+      $video->html = "<iframe src='" . BASE_URL . "/live/embed.php?id=$id' width='$width' height='$height' frameborder='0' allowfullscreen></iframe>";
+      $video->width = $width;
+      $video->height = $height;
     }
   } else {
     App::Throw404();
@@ -45,14 +48,15 @@ else {
     $videoUrl = ($video->private) ? $video->privateUrl : $video->videoId;
 	$userMapper = new UserMapper();
 	$owner = $userMapper->getUserByCustom(array('username' => $video->username, 'status' => 'Active'));
-	$video->type="video";
-	$video->version="1.0";
-	$video->author_name=$owner->firstName.' '.$owner->lastName;
-	$video->author_url=$owner->website;
+
+	$video->type = "video";
+	$video->version = "1.0";
+	$video->author_name = $owner->firstName.' '.$owner->lastName;
+	$video->author_url = $owner->website;
 	//$video->thumbnail_url=getVideoThumbnail($video);
-  $video->html="<iframe src='" . BASE_URL . "/embed/$videoUrl/' width='400' height='250' frameborder='0' allowfullscreen></iframe>";
-	$video->width='400';
-	$video->height='250';
+    $video->html = "<iframe src='" . BASE_URL . "/embed/$videoUrl/' width='$width' height='$height' frameborder='0' allowfullscreen></iframe>";
+	$video->width = $width;
+	$video->height = $height;
 
 }
 
