@@ -5,7 +5,7 @@ $this->view->options->disableView = true;
 $urlParts = parse_url($_GET['url']);
 
 // Check for 'live' in the url and set up livestream embed
-if (strpos($urlParts, 'live') !== false) {
+if (strpos($urlParts['path'], 'live') !== false) {
 
   // Get the stream id from the params
   $query = parse_str($urlParts['query'], $params);
@@ -33,23 +33,24 @@ else {
   $videoId = basename($urlParts['path']);
 
   // Determine how to search based on id pattern
-  $idColumnName = (is_numeric($rawVideoId)) ? 'video_id' : 'private_url';
+  $idColumnName = (is_numeric($videoId)) ? 'video_id' : 'private_url';
+
+  $videoMapper = new VideoMapper();
   
-  $video = $videoMapper->getVideoByCustom(array($idColumn => $videoId, 'status' => 'approved'));
+  $video = $videoMapper->getVideoByCustom(array($idColumnName => $videoId, 'status' => 'approved'));
 
 	if (!$video) {
 		App::Throw404();
 	}
-
+    $videoUrl = ($video->private) ? $video->privateUrl : $video->videoId;
 	$userMapper = new UserMapper();
 	$owner = $userMapper->getUserByCustom(array('username' => $video->username, 'status' => 'Active'));
 	$video->type="video";
 	$video->version="1.0";
 	$video->author_name=$owner->firstName.' '.$owner->lastName;
 	$video->author_url=$owner->website;
-	$video->thumbnail_url=getVideoThumbnail($video);
-  $video->html="<iframe src='".BASE
-  URL."/embed/$video->privateUrl/' width='400' height='250' frameborder='0' allowfullscreen></iframe>";
+	//$video->thumbnail_url=getVideoThumbnail($video);
+  $video->html="<iframe src='" . BASE_URL . "/embed/$videoUrl/' width='400' height='250' frameborder='0' allowfullscreen></iframe>";
 	$video->width='400';
 	$video->height='250';
 
